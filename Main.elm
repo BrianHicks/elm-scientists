@@ -56,6 +56,7 @@ init =
 
 type Msg
     = Select String
+    | ChangeColor String Color
 
 
 update : Msg -> Model -> Model
@@ -68,6 +69,18 @@ update msg model =
 
                 scientist ->
                     { model | selected = scientist }
+
+        ChangeColor who color ->
+            case Dict.get who model.scientists of
+                Nothing ->
+                    model
+
+                Just scientist ->
+                    { model
+                        | scientists =
+                            model.scientists
+                                |> Dict.insert who { scientist | color = color }
+                    }
 
 
 toCss : Color -> List ( String, String )
@@ -88,14 +101,27 @@ toCss =
         >> (\x -> [ x ])
 
 
+colors : Scientist -> Html Msg
+colors scientist =
+    Html.ul []
+        [ Html.li [ Events.onClick (ChangeColor scientist.name Color.red) ] [ Html.text "red" ]
+        , Html.li [ Events.onClick (ChangeColor scientist.name Color.orange) ] [ Html.text "orange" ]
+        , Html.li [ Events.onClick (ChangeColor scientist.name Color.yellow) ] [ Html.text "yellow" ]
+        , Html.li [ Events.onClick (ChangeColor scientist.name Color.green) ] [ Html.text "green" ]
+        , Html.li [ Events.onClick (ChangeColor scientist.name Color.blue) ] [ Html.text "blue" ]
+        , Html.li [ Events.onClick (ChangeColor scientist.name Color.purple) ] [ Html.text "purple" ]
+        ]
+
+
 itemView : Scientist -> Html Msg
 itemView scientist =
     Html.li
         [ Attr.class "scientist"
         , scientist.color |> toCss |> Attr.style
-        , Events.onClick (Select scientist.name)
         ]
-        [ Html.text scientist.name ]
+        [ Html.span [ Events.onClick (Select scientist.name) ] [ Html.text scientist.name ]
+        , colors scientist
+        ]
 
 
 detailView : Maybe Scientist -> Html Msg
