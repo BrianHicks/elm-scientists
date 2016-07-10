@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Html.App as App
 import Html.Attributes as Attr
 import Html.Events as Events
+import Maybe
 
 
 type alias Scientist =
@@ -17,7 +18,7 @@ type alias Scientist =
 
 type alias Model =
     { scientists : Dict String Scientist
-    , selected : Maybe Scientist
+    , selected : Maybe String
     }
 
 
@@ -63,12 +64,7 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Select who ->
-            case Dict.get who model.scientists of
-                Nothing ->
-                    model
-
-                scientist ->
-                    { model | selected = scientist }
+            { model | selected = Just who }
 
         ChangeColor who color ->
             case Dict.get who model.scientists of
@@ -119,7 +115,7 @@ itemView scientist =
         [ Attr.class "scientist"
         , scientist.color |> toCss |> Attr.style
         ]
-        [ Html.span [ Events.onClick (Select scientist.name) ] [ Html.text scientist.name ]
+        [ Html.p [ Events.onClick (Select scientist.name) ] [ Html.text scientist.name ]
         , colors scientist
         ]
 
@@ -141,7 +137,8 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.ul [] (model.scientists |> Dict.values |> List.map itemView)
-        , detailView model.selected
+        , lookupByID model.selected model.scientists
+            |> detailView
         ]
 
 
