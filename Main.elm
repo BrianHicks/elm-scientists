@@ -22,6 +22,10 @@ type alias Model =
     }
 
 
+{-| We're populating our Model with a bunch of scientists here in init to save
+having to load them over JSON. No need to make this example more complex than it
+has to be. :)
+-}
 init : Model
 init =
     { scientists =
@@ -79,6 +83,9 @@ update msg model =
                     }
 
 
+{-| This is really similar to some publicly available functions in
+elm-color-extra, but again with the simple examples.
+-}
 toCss : Color -> List ( String, String )
 toCss =
     Color.toRgb
@@ -97,6 +104,10 @@ toCss =
         >> (\x -> [ x ])
 
 
+{-| This is a little more verbose than it has to be. If I was doing this for a
+production app, I would probably find some way to map (String, Color) to List
+Html. But this works just fine. :)
+-}
 colors : Scientist -> Html Msg
 colors scientist =
     Html.ul []
@@ -120,6 +131,10 @@ itemView scientist =
         ]
 
 
+{-| We're dealing with a Maybe Scientist here instead of a Scientist or a Maybe
+String. This means that we don't care how the scientists are stored, we just
+render the selection as-is. Types!
+-}
 detailView : Maybe Scientist -> Html Msg
 detailView s =
     case s of
@@ -133,6 +148,20 @@ detailView s =
                 ]
 
 
+{-| LookupByID does what it says on the tin. The order of arguments matches that
+of the rest of the collection functions from the stanrdard library (a selector
+followed by the collection so it's easier to do, say, `model.scientists |>
+lookupByID (Just "Ride")`)
+
+We're using this as the concrete signature `Maybe String -> Dict String
+Scientist -> Maybe Scientist`, but I've left the type variables in to
+demonstrate that we can use this anywhere we're looking up a value in a Dict.
+-}
+lookupByID : Maybe comparable -> Dict comparable a -> Maybe a
+lookupByID id collection =
+    id `Maybe.andThen` (\inner -> Dict.get inner collection)
+
+
 view : Model -> Html Msg
 view model =
     Html.div []
@@ -142,6 +171,10 @@ view model =
         ]
 
 
+{-| And lastly, we're using App.beginnerProgram instead of App.program because
+we deliberately don't have any effects. This is meant to be super simple. This
+technique will work just as well with App.program, however.
+-}
 main : Program Never
 main =
     App.beginnerProgram
