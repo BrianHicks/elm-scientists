@@ -71,16 +71,14 @@ update msg model =
             { model | selected = Just who }
 
         ChangeColor who color ->
-            case Dict.get who model.scientists of
-                Nothing ->
-                    model
+            let
+                recolor =
+                    Maybe.map (\s -> { s | color = color })
 
-                Just scientist ->
-                    { model
-                        | scientists =
-                            model.scientists
-                                |> Dict.insert who { scientist | color = color }
-                    }
+                scientists =
+                    model.scientists |> Dict.update who recolor
+            in
+                { model | scientists = scientists }
 
 
 {-| This is really similar to some publicly available functions in
